@@ -1,0 +1,82 @@
+Задание 1.8
+
+SELECT 
+   CONCAT(module_id,'.',lesson_position,".",step_position," ",step_name) AS Шаг
+FROM step
+        INNER JOIN lesson USING(lesson_id)
+        INNER JOIN module USING(module_id)
+        INNER JOIN step_keyword USING(step_id)
+        INNER JOIN keyword USING(keyword_id)
+WHERE keyword_name IN ('MAX', 'AVG', 'MIN')
+GROUP BY ШАГ
+HAVING COUNT(*) = 3
+ORDER BY 1;
+
+
+Задание 2.5
+
+SELECT name_step, COUNT(date_step_beg)
+FROM buy_step LEFT JOIN step USING(step_id)
+WHERE (date_step_end IS NULL AND date_step_beg IS NOT NULL) OR (date_step_end IS NULL AND date_step_beg IS NULL)
+GROUP BY name_step
+
+
+Задание 3.4(-1)
+
+CREATE TABLE student AS
+
+SELECT name_program,
+    IF(str_id <= plan, name_enrollee, program_id = program_id + 1) name_enrollee,
+    itog
+FROM applicant_order
+    JOIN program USING(program_id)
+    JOIN enrollee USING(enrollee_id)
+ORDER BY name_program, itog DESC;
+
+DELETE FROM student
+WHERE name_enrollee = '0';
+
+SELECT * FROM student
+
+
+Задание 3.4(-2)
+
+SET @num_1 := 1;
+SET @num_2 := 0;
+
+UPDATE applicant_order
+SET str_id = IF(program_id = @num_2, @num_1 := @num_1 + 1, @num_1 := 1 AND @num_2 := @num_2 + 1);
+
+SELECT * FROM applicant_order 
+
+
+Задание 3.3(-1)
+
+SELECT DISTINCT name_program, name_enrollee
+FROM enrollee
+    JOIN program_enrollee USING(enrollee_id)
+    JOIN program USING(program_id)
+    JOIN program_subject USING(program_id)
+    JOIN subject USING(subject_id)
+    JOIN enrollee_subject USING(subject_id, enrollee_id)
+WHERE result < min_result    
+GROUP BY enrollee_id, program_id
+
+
+Задание 3.3(4)
+
+SELECT DISTINCT(name_program) 
+FROM program_subject
+    INNER JOIN program USING (program_id)
+WHERE program_id NOT IN(SELECT program_id FROM program_subject WHERE min_ball < 40)
+ORDER BY name_program;
+
+
+Задание 3.1
+
+SELECT name_subject, LEFT(name_question, 35) Вопрос, LEFT(name_answer, 35) Ответ
+FROM subject
+    JOIN question USING(subject_id)
+    JOIN answer USING(question_id)
+WHERE is_correct = 1
+GROUP BY name_subject, Вопрос, Ответ
